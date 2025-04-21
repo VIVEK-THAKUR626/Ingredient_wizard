@@ -5,7 +5,7 @@ from django.http import JsonResponse
 # Function to find recipes from an API based on ingredients
 def get_recipes(ingredients):
     url = "https://api.spoonacular.com/recipes/findByIngredients"
-    api_key = "c607aa20a6c54982ae3ea5f13327d1f5"  # Replace with your API key
+    api_key = "API-KEY"  # Replace with your API key
     params = {
         'ingredients': ingredients,
         'number': 150,  # Limit to 150 recipes
@@ -24,7 +24,7 @@ def index(request):
     return render(request, 'index.html', {'recipes': recipes})
 
 def recipe_detail(request, recipe_id):
-    api_key = 'c607aa20a6c54982ae3ea5f13327d1f5'
+    api_key = 'API-KEY'
     url = f"https://api.spoonacular.com/recipes/{recipe_id}/information?apiKey={api_key}"
     try:
         response = requests.get(url, verify=True)  # You can remove verify=False once SSL is trusted
