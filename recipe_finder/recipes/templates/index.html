@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Finder</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Recipe Finder</h1>
+        <form method="POST">
+            {% csrf_token %}
+            <label for="ingredients">Enter Ingredients (comma-separated):</label>
+            <input type="text" id="ingredients" name="ingredients" required>
+            <button type="submit">Find Recipes</button>
+        </form>
+
+        {% if recipes %}
+            <h2>Recipes:</h2>
+            <ul>
+                {% for recipe in recipes %}
+                    <li>
+                        <a href="{% url 'recipe_detail' recipe.id %}">{{ recipe.title }}</a>
+                        <p>Used Ingredients: {{ recipe.usedIngredientCount }} / {{ recipe.missedIngredientCount }} missing</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</body>
+</html>
