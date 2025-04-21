@@ -22,7 +22,7 @@
             <ul>
                 {% for recipe in recipes %}
                     <li>
-                        <a href="https://spoonacular.com/recipes/{{ recipe.id }}" target="_blank">{{ recipe.title }}</a>
+                        <a href="{% url 'recipe_detail' recipe.id %}">{{ recipe.title }}</a>
                         <p>Used Ingredients: {{ recipe.usedIngredientCount }} / {{ recipe.missedIngredientCount }} missing</p>
                     </li>
                 {% endfor %}

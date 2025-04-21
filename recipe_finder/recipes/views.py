@@ -8,7 +8,7 @@ def get_recipes(ingredients):
     api_key = "c607aa20a6c54982ae3ea5f13327d1f5"  # Replace with your API key
     params = {
         'ingredients': ingredients,
-        'number': 5,  # Limit to 5 recipes
+        'number': 150,  # Limit to 150 recipes
         'apiKey': api_key
     }
     response = requests.get(url, params=params)
