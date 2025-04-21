@@ -23,3 +23,12 @@ def index(request):
             recipes = get_recipes(ingredients)
     return render(request, 'index.html', {'recipes': recipes})
 
+def recipe_detail(request, recipe_id):
+    api_key = 'your_spoonacular_api_key'
+    url = f"https://api.spoonacular.com/recipes/{recipe_id}/information?apiKey={api_key}"
+    try:
+        response = requests.get(url, verify=False)  # You can remove verify=False once SSL is trusted
+        data = response.json()
+        return render(request, 'detail.html', {'recipe': data})
+    except Exception as e:
+        return render(request, 'error.html', {'error': str(e)})
