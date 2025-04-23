@@ -12,9 +12,35 @@
         <h1>Recipe Finder</h1>
         <form method="POST">
             {% csrf_token %}
-            <label for="ingredients">Enter Ingredients (comma-separated):</label>
+
+            <label for="ingredients">Ingredients (comma-separated):</label>
             <input type="text" id="ingredients" name="ingredients" required>
             <button type="submit">Find Recipes</button>
+            <br>
+            <br>
+            <label for="diet">Dietary Preference:</label>
+            <select name="diet" id="diet">
+                <option value="">-- None --</option>
+                <option value="vegetarian">Vegetarian</option>
+                <option value="vegan">Vegan</option>
+                <option value="gluten free">Gluten Free</option>
+                <option value="ketogenic">Ketogenic</option>
+                <option value="pescetarian">Pescetarian</option>
+            </select>
+            <br>
+            <br>
+            <label for="cuisine">Cuisine / Ethnicity:</label>
+            <select name="cuisine" id="cuisine">
+                <option value="">-- Any --</option>
+                <option value="indian">Indian</option>
+                <option value="chinese">Chinese</option>
+                <option value="italian">Italian</option>
+                <option value="mexican">Mexican</option>
+                <option value="thai">Thai</option>
+                <option value="french">French</option>
+            </select>
+
+            
         </form>
 
         {% if recipes %}
@@ -23,7 +49,9 @@
                 {% for recipe in recipes %}
                     <li>
                         <a href="{% url 'recipe_detail' recipe.id %}">{{ recipe.title }}</a>
-                        <p>Used Ingredients: {{ recipe.usedIngredientCount }} / {{ recipe.missedIngredientCount }} missing</p>
+                        {% if recipe.usedIngredientCount is not None %}
+                            <p>Used Ingredients: {{ recipe.usedIngredientCount }} / {{ recipe.missedIngredientCount }} missing</p>
+                        {% endif %}
                     </li>
                 {% endfor %}
             </ul>

@@ -1,33 +1,47 @@
 import requests
 from django.shortcuts import render
 from django.http import JsonResponse
+import certifi
 
 # Function to find recipes from an API based on ingredients
-def get_recipes(ingredients):
-    url = "https://api.spoonacular.com/recipes/findByIngredients"
-    api_key = "c607aa20a6c54982ae3ea5f13327d1f5"  # Replace with your API key
+def get_recipes(ingredients, diet=None, cuisine=None):
+    url = "https://api.spoonacular.com/recipes/complexSearch"
+    api_key = "c607aa20a6c54982ae3ea5f13327d1f5"  # Replace with your real key
+
     params = {
-        'ingredients': ingredients,
-        'number': 150,  # Limit to 150 recipes
-        'apiKey': api_key
+        'includeIngredients': ingredients,
+        'number': 20,
+        'apiKey': api_key,
     }
-    response = requests.get(url, params=params)
-    return response.json()
+
+    if diet:
+        params['diet'] = diet
+    if cuisine:
+        params['cuisine'] = cuisine
+
+    response = requests.get(url, params=params, verify=certifi.where())
+    return response.json().get('results', [])  # ✅ .get used on response dict, not input
+
 
 # View to display the home page and handle ingredient input
 def index(request):
     recipes = []
     if request.method == "POST":
         ingredients = request.POST.get('ingredients')
+        diet = request.POST.get('diet')
+        cuisine = request.POST.get('cuisine')
+
         if ingredients:
-            recipes = get_recipes(ingredients)
+            recipes = get_recipes(ingredients, diet, cuisine)
+
     return render(request, 'index.html', {'recipes': recipes})
+
 
 def recipe_detail(request, recipe_id):
     api_key = 'c607aa20a6c54982ae3ea5f13327d1f5'
     url = f"https://api.spoonacular.com/recipes/{recipe_id}/information?apiKey={api_key}"
     try:
-        response = requests.get(url, verify=True)  # You can remove verify=False once SSL is trusted
+        response = requests.get(url, verify=certifi.where())  # You can remove verify=False once SSL is trusted
         data = response.json()
         return render(request, 'detail.html', {'recipe': data})
     except Exception as e:
