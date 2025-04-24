@@ -57,7 +57,28 @@ def get_recipes(ingredients, diet=None, cuisine=None):
 # View to display the home page and handle ingredient input
 def index(request):
     recipes = []
+    
     if request.method == "POST":
+        if 'login' in request.POST:
+            username = request.POST['username']
+            password = request.POST['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, "Logged in successfully!")
+            else:
+                messages.error(request, "Invalid login credentials")
+        
+        elif 'signup' in request.POST:
+            username = request.POST['username']
+            password = request.POST['password']
+            if User.objects.filter(username=username).exists():
+                messages.error(request, "Username already exists")
+            else:
+                User.objects.create_user(username=username, password=password)
+                messages.success(request, "Account created successfully!")
+
+        # Handle recipe search
         ingredients = request.POST.get('ingredients')
         diet = request.POST.get('diet')
         cuisine = request.POST.get('cuisine')
