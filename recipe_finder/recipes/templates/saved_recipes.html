@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>Saved Recipes</h2>
+{% for recipe in saved_recipes %}
+  <div>
+    <h3>{{ recipe.title }}</h3>
+    {% if recipe.image_url %}
+      <img src="{{ recipe.image_url }}" alt="{{ recipe.title }}" width="200">
+    {% endif %}
+    <a href="https://spoonacular.com/recipes/{{ recipe.title|slugify }}-{{ recipe.recipe_id }}" target="_blank">View on Spoonacular</a>
+  </div>
+{% empty %}
+  <p>No saved recipes yet.</p>
+{% endfor %}
+
+<a href="{% url 'index' %}">Back to Home</a>
+</body>
+</html>

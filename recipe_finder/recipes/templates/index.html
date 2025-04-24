@@ -12,6 +12,7 @@
 
         {% if user.is_authenticated %}
   <p>Welcome, {{ user.username }}! <a href="{% url 'logout' %}">Logout</a></p>
+  <p><a href="{% url 'saved_recipes' %}">View Saved Recipes</a></p>
 {% else %}
   <h2>Login</h2>
   <form method="post">
@@ -76,6 +77,16 @@
                         {% if recipe.usedIngredientCount is not None %}
                             <p>Used Ingredients: {{ recipe.usedIngredientCount }} / {{ recipe.missedIngredientCount }} missing</p>
                         {% endif %}
+
+                        {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'save_recipe' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+                        <input type="hidden" name="title" value="{{ recipe.title }}">
+                        <input type="hidden" name="image_url" value="{{ recipe.image }}">
+                        <button type="submit">Save Recipe</button>
+                    </form>
+                    {% endif %}
                     </li>
                 {% endfor %}
             </ul>
