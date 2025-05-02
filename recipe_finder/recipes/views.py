@@ -71,7 +71,7 @@ def logout_view(request):
 # Function to find recipes from an API based on ingredients
 def get_recipes(ingredients, diet=None, cuisine=None):
     url = "https://api.spoonacular.com/recipes/complexSearch"
-    api_key = "c607aa20a6c54982ae3ea5f13327d1f5"  # Replace with your API key
+    api_key = "API-KEY"  # Replace with your API key
     params = {
         'includeIngredients': ingredients,
         'number': 20,
@@ -127,7 +127,7 @@ def index(request):
 
 
 def recipe_detail(request, recipe_id):
-    api_key = 'c607aa20a6c54982ae3ea5f13327d1f5'
+    api_key = 'API-KEY'
     url = f"https://api.spoonacular.com/recipes/{recipe_id}/information?apiKey={api_key}"
     try:
         response = requests.get(url, verify=certifi.where())  # You can remove verify=False once SSL is trusted
