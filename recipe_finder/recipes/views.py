@@ -11,24 +11,20 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def save_recipe(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         recipe_id = request.POST.get('recipe_id')
         title = request.POST.get('title')
         image_url = request.POST.get('image_url')
+        source_url = request.POST.get('source_url')
 
-        # Avoid duplicates
-        if not SavedRecipe.objects.filter(user=request.user, recipe_id=recipe_id).exists():
-            SavedRecipe.objects.create(
-                user=request.user,
-                recipe_id=recipe_id,
-                title=title,
-                image_url=image_url
-            )
-            messages.success(request, "Recipe saved successfully!")
-        else:
-            messages.info(request, "Recipe already saved.")
-
-    return redirect('index')
+        SavedRecipe.objects.create(
+            user=request.user,
+            recipe_id=recipe_id,
+            title=title,
+            image_url=image_url,
+        )
+        messages.success(request, "Recipe saved!")
+        return redirect('recipe_detail', recipe_id=recipe_id)
 
 
 @login_required
