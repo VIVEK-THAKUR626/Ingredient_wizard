@@ -19,6 +19,18 @@
     <h2>Instructions</h2>
     <p>{{ recipe.instructions|safe }}</p>
 
+    {% if user.is_authenticated %}
+    <form method="POST" action="{% url 'save_recipe' %}">
+        {% csrf_token %}
+        <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+        <input type="hidden" name="title" value="{{ recipe.title }}">
+        <input type="hidden" name="image_url" value="{{ recipe.image }}">
+        <button type="submit">Save Recipe</button>
+    </form>
+    {% else %}
+    <p><a href="{% url 'login' %}">Login</a> to save this recipe.</p>
+    {% endif %}
+
     <a href="/">Back to Search</a>
 </body>
 </html>

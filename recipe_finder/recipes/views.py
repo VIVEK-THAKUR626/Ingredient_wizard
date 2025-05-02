@@ -8,27 +8,31 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import SavedRecipe
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+
+@login_required
+def unsave_recipe(request, pk):
+    saved = get_object_or_404(SavedRecipe, pk=pk, user=request.user)
+    saved.delete()
+    messages.success(request, "Recipe unsaved.")
+    return redirect('saved_recipes')  # Adjust if your view name is different
 
 @login_required
 def save_recipe(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         recipe_id = request.POST.get('recipe_id')
         title = request.POST.get('title')
         image_url = request.POST.get('image_url')
+        source_url = request.POST.get('source_url')
 
-        # Avoid duplicates
-        if not SavedRecipe.objects.filter(user=request.user, recipe_id=recipe_id).exists():
-            SavedRecipe.objects.create(
-                user=request.user,
-                recipe_id=recipe_id,
-                title=title,
-                image_url=image_url
-            )
-            messages.success(request, "Recipe saved successfully!")
-        else:
-            messages.info(request, "Recipe already saved.")
-
-    return redirect('index')
+        SavedRecipe.objects.create(
+            user=request.user,
+            recipe_id=recipe_id,
+            title=title,
+            image_url=image_url,
+        )
+        messages.success(request, "Recipe saved!")
+        return redirect('recipe_detail', recipe_id=recipe_id)
 
 
 @login_required
