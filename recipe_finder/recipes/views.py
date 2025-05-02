@@ -8,6 +8,14 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import SavedRecipe
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+
+@login_required
+def unsave_recipe(request, pk):
+    saved = get_object_or_404(SavedRecipe, pk=pk, user=request.user)
+    saved.delete()
+    messages.success(request, "Recipe unsaved.")
+    return redirect('saved_recipes')  # Adjust if your view name is different
 
 @login_required
 def save_recipe(request):
