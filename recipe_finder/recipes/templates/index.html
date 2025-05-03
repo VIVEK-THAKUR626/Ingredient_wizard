@@ -1,62 +1,58 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recipe Finder</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-</head>
-<body>
-    <div class="container">
 
-        {% if user.is_authenticated %}
-  <p>Welcome, {{ user.username }}! <a href="{% url 'logout' %}">Logout</a></p>
-  <p><a href="{% url 'saved_recipes' %}">View Saved Recipes</a></p>
-{% else %}
-  <h2>Login</h2>
-  <form method="post">
-    {% csrf_token %}
-    <input type="hidden" name="login" value="1">
-    <input type="text" name="username" placeholder="Username" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Login</button>
-  </form>
+{% block title %}Recipe Finder{% endblock %}
 
-  <h2>Sign Up</h2>
-  <form method="post">
-    {% csrf_token %}
-    <input type="hidden" name="signup" value="1">
-    <input type="text" name="username" placeholder="Username" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Sign Up</button>
-  </form>
-{% endif %}
+{% block content %}
+<div class="container mt-4">
 
-        <h1>Recipe Finder</h1>
-        <form method="POST">
-            {% csrf_token %}
+    {% if user.is_authenticated %}
+        <p>Welcome, {{ user.username }}! </p>
+    {% else %}
+        <div>
+            <h2>Login</h2>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="login" value="1">
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
 
+            <h2 class="mt-4">Sign Up</h2>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="signup" value="1">
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn btn-success">Sign Up</button>
+            </form>
+        </div>
+    {% endif %}
+
+    <h1 class="mt-4">Find Recipes</h1>
+    <form method="POST" class="mb-4">
+        {% csrf_token %}
+        <div class="mb-2">
             <label for="ingredients">Ingredients (comma-separated):</label>
-            <input type="text" id="ingredients" name="ingredients" required>
-            <button type="button" onclick="startDictation()">🎤</button>
-            <button type="submit">Find Recipes</button>
-            <br>
-            <br>
+            <input type="text" id="ingredients" name="ingredients" class="form-control" required>
+            <button type="button" onclick="startDictation()">🎙️</button>
+        </div>
+        <div class="mb-2">
             <label for="diet">Dietary Preference:</label>
-            <select name="diet" id="diet">
-                <option value="">-- None --</option>
+            <select name="diet" id="diet" class="form-select">
+                <option value="">None</option>
                 <option value="vegetarian">Vegetarian</option>
                 <option value="vegan">Vegan</option>
                 <option value="gluten free">Gluten Free</option>
                 <option value="ketogenic">Ketogenic</option>
                 <option value="pescetarian">Pescetarian</option>
             </select>
-            <br>
-            <br>
+        </div>
+        <div class="mb-3">
             <label for="cuisine">Cuisine / Ethnicity:</label>
-            <select name="cuisine" id="cuisine">
-                <option value="">-- Any --</option>
+            <select name="cuisine" id="cuisine" class="form-select">
+                <option value="">Any</option>
                 <option value="indian">Indian</option>
                 <option value="chinese">Chinese</option>
                 <option value="italian">Italian</option>
@@ -64,49 +60,47 @@
                 <option value="thai">Thai</option>
                 <option value="french">French</option>
             </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Find Recipes</button>
+    </form>
 
-            
-        </form>
+    {% if recipes %}
+        <h2>Recipes:</h2>
+        <ul class="list-group">
+            {% for recipe in recipes %}
+                <li class="list-group-item">
+                    <a href="{% url 'recipe_detail' recipe.id %}">{{ recipe.title }}</a>
+                    {% if recipe.usedIngredientCount is not None %}
+                        <p>Used Ingredients: {{ recipe.usedIngredientCount }} / {{ recipe.missedIngredientCount }} missing</p>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
 
-        {% if recipes %}
-            <h2>Recipes:</h2>
-            <ul>
-                {% for recipe in recipes %}
-                    <li>
-                        <a href="{% url 'recipe_detail' recipe.id %}">{{ recipe.title }}</a>
-                        {% if recipe.usedIngredientCount is not None %}
-                            <p>Used Ingredients: {{ recipe.usedIngredientCount }} / {{ recipe.missedIngredientCount }} missing</p>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    </div>
+<script>
+    function startDictation() {
+        if (window.hasOwnProperty('webkitSpeechRecognition')) {
+            var recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = "en-US";
 
-    <script>
-        function startDictation() {
-            if (window.hasOwnProperty('webkitSpeechRecognition')) {
-                var recognition = new webkitSpeechRecognition();
-                recognition.continuous = false;
-                recognition.interimResults = false;
-                recognition.lang = "en-US";
-    
-                recognition.start();
-    
-                recognition.onresult = function(event) {
-                    document.getElementById("ingredients").value = event.results[0][0].transcript;
-                    recognition.stop();
-                };
-    
-                recognition.onerror = function(event) {
-                    recognition.stop();
-                    alert("Error occurred in recognition: " + event.error);
-                };
-            } else {
-                alert("Speech Recognition not supported in this browser.");
-            }
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                document.getElementById("ingredients").value = event.results[0][0].transcript;
+                recognition.stop();
+            };
+
+            recognition.onerror = function(event) {
+                recognition.stop();
+                alert("Error occurred in recognition: " + event.error);
+            };
+        } else {
+            alert("Speech Recognition not supported in this browser.");
         }
-    </script>
-    
-</body>
-</html>
+    }
+</script>
+{% endblock %}

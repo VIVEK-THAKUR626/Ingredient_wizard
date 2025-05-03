@@ -10,6 +10,13 @@ from .models import SavedRecipe
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 
+def about(request):
+    return render(request, 'about.html')
+
+@login_required
+def profile(request):
+    return render(request, 'profile.html')
+
 @login_required
 def unsave_recipe(request, pk):
     saved = get_object_or_404(SavedRecipe, pk=pk, user=request.user)
