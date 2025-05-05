@@ -100,6 +100,9 @@ def get_recipes(ingredients, diet=None, cuisine=None):
 # View to display the home page and handle ingredient input
 def index(request):
     recipes = []
+    ingredients_raw = ''
+    diet = ''
+    cuisine = ''
     
     if request.method == "POST":
         if 'login' in request.POST:
@@ -120,17 +123,56 @@ def index(request):
             else:
                 User.objects.create_user(username=username, password=password)
                 messages.success(request, "Account created successfully!")
+        
+        # Redirect to GET-based search after login/signup
+        return redirect('index')
 
-        # Handle recipe search
-        ingredients = request.POST.get('ingredients')
-        print("Ingredients:", ingredients)
-        diet = request.POST.get('diet')
-        cuisine = request.POST.get('cuisine')
+    # GET request — handle recipe search
+    import json
+    ingredients_raw = request.GET.get('ingredients', '')
+    ingredients = ''
 
-        if ingredients:
-            recipes = get_recipes(ingredients, diet, cuisine)
+    try:
+        ingredients_list = [tag['value'] for tag in json.loads(ingredients_raw)]
+        ingredients = ','.join(ingredients_list)
+    except (TypeError, json.JSONDecodeError):
+        ingredients = ingredients_raw
 
-    return render(request, 'index.html', {'recipes': recipes})
+    diet = request.GET.get('diet', '')
+    cuisine = request.GET.get('cuisine', '')
+
+    # Save search data to session
+    request.session['search_data'] = {
+            'ingredients': ingredients_raw,
+            'diet': diet,
+            'cuisine': cuisine
+    }
+
+    if ingredients:
+        recipes = get_recipes(ingredients, diet, cuisine)
+
+    else:
+        # If GET request, try to restore previous search from session
+        search_data = request.session.get('search_data')
+        if search_data:
+            ingredients_raw = search_data.get('ingredients', '')
+            diet = search_data.get('diet', '')
+            cuisine = search_data.get('cuisine', '')
+            try:
+                ingredients_list = [tag['value'] for tag in json.loads(ingredients_raw)]
+                ingredients = ','.join(ingredients_list)
+            except (TypeError, json.JSONDecodeError):
+                ingredients = ingredients_raw
+            if ingredients:
+                recipes = get_recipes(ingredients, diet, cuisine)
+
+    return render(request, 'index.html', {
+        'recipes': recipes,
+        'ingredients': ingredients_raw,
+        'diet': diet,
+        'cuisine': cuisine
+    })
+
 
 
 def recipe_detail(request, recipe_id):
