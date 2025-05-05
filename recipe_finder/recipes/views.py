@@ -9,6 +9,8 @@ from django.contrib import messages
 from .models import SavedRecipe
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.utils.http import urlencode
 
 def about(request):
     return render(request, 'about.html')
@@ -30,7 +32,6 @@ def save_recipe(request):
         recipe_id = request.POST.get('recipe_id')
         title = request.POST.get('title')
         image_url = request.POST.get('image_url')
-        source_url = request.POST.get('source_url')
 
         SavedRecipe.objects.create(
             user=request.user,
@@ -39,7 +40,22 @@ def save_recipe(request):
             image_url=image_url,
         )
         messages.success(request, "✅ Recipe saved!")
-        return redirect('recipe_detail', recipe_id=recipe_id)
+
+        # Preserve search parameters
+        ingredients = request.GET.get('ingredients', '')
+        diet = request.GET.get('diet', '')
+        cuisine = request.GET.get('cuisine', '')
+
+        # Construct redirect URL with query params
+        base_url = reverse('recipe_detail', args=[recipe_id])
+        query_string = urlencode({
+            'ingredients': ingredients,
+            'diet': diet,
+            'cuisine': cuisine,
+        })
+        url = f"{base_url}?{query_string}"
+
+        return redirect(url)
 
 
 @login_required
@@ -173,14 +189,26 @@ def index(request):
         'cuisine': cuisine
     })
 
-
-
 def recipe_detail(request, recipe_id):
     api_key = 'c607aa20a6c54982ae3ea5f13327d1f5'
     url = f"https://api.spoonacular.com/recipes/{recipe_id}/information?apiKey={api_key}"
+
+    # ✅ Get query parameters for returning back to search
+    ingredients = request.GET.get('ingredients', '')
+    diet = request.GET.get('diet', '')
+    cuisine = request.GET.get('cuisine', '')
+
     try:
-        response = requests.get(url, verify=certifi.where())  # You can remove verify=False once SSL is trusted
+        response = requests.get(url, verify=certifi.where())
         data = response.json()
-        return render(request, 'detail.html', {'recipe': data})
+        
+        return render(request, 'detail.html', {
+            'recipe': data,
+            'ingredients': ingredients,
+            'diet': diet,
+            'cuisine': cuisine
+        })
+
     except Exception as e:
         return render(request, 'error.html', {'error': str(e)})
+

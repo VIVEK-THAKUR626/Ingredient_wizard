@@ -27,7 +27,7 @@
   <p>{{ recipe.instructions|safe }}</p>
 
   {% if user.is_authenticated %}
-  <form method="POST" action="{% url 'save_recipe' %}">
+  <form method="POST" action="{% url 'save_recipe' %}?ingredients={{ ingredients|urlencode }}&diet={{ diet }}&cuisine={{ cuisine }}">
       {% csrf_token %}
       <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
       <input type="hidden" name="title" value="{{ recipe.title }}">
