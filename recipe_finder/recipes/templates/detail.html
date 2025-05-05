@@ -1,36 +1,84 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ recipe.title }}</title>
-</head>
-<body>
-    <h1>{{ recipe.title }}</h1>
-    <img src="{{ recipe.image }}" alt="{{ recipe.title }}" width="300">
-    <p>{{ recipe.summary|safe }}</p>
 
-    <h2>Ingredients</h2>
-    <ul>
-        {% for ingredient in recipe.extendedIngredients %}
-            <li>{{ ingredient.original }}</li>
-        {% endfor %}
-    </ul>
+{% block title %}{{ recipe.title }} - Recipe Finder{% endblock %}
 
-    <h2>Instructions</h2>
-    <p>{{ recipe.instructions|safe }}</p>
-
-    {% if user.is_authenticated %}
-    <form method="POST" action="{% url 'save_recipe' %}">
-        {% csrf_token %}
-        <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
-        <input type="hidden" name="title" value="{{ recipe.title }}">
-        <input type="hidden" name="image_url" value="{{ recipe.image }}">
-        <button type="submit">Save Recipe</button>
-    </form>
-    {% else %}
-    <p><a href="{% url 'login' %}">Login</a> to save this recipe.</p>
+{% block content %}
+    {% if messages %}
+        <div id="popup-message" class="popup">
+            {% for message in messages %}
+             <p>{{ message }}</p>
+            {% endfor %}
+        </div>
     {% endif %}
 
-    <a href="/">Back to Search</a>
-</body>
-</html>
+  <h1>{{ recipe.title }}</h1>
+  <img src="{{ recipe.image }}" alt="{{ recipe.title }}" width="300">
+  <p>{{ recipe.summary|safe }}</p>
+
+  <h2>Ingredients</h2>
+  <ul>
+      {% for ingredient in recipe.extendedIngredients %}
+          <li>{{ ingredient.original }}</li>
+      {% endfor %}
+  </ul>
+
+  <h2>Instructions</h2>
+  <p>{{ recipe.instructions|safe }}</p>
+
+  {% if user.is_authenticated %}
+  <form method="POST" action="{% url 'save_recipe' %}?ingredients={{ ingredients|urlencode }}&diet={{ diet }}&cuisine={{ cuisine }}">
+      {% csrf_token %}
+      <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+      <input type="hidden" name="title" value="{{ recipe.title }}">
+      <input type="hidden" name="image_url" value="{{ recipe.image }}">
+      <button type="submit" class="btn btn-success">Save Recipe</button>
+  </form>
+  {% else %}
+  <p><a href="{% url 'login' %}">Login</a> to save this recipe.</p>
+  {% endif %}
+
+    {% with request.GET.ingredients as ingredients %}
+    {% with request.GET.diet as diet %}
+    {% with request.GET.cuisine as cuisine %}
+        <a href="{% url 'index' %}?ingredients={{ ingredients }}&diet={{ diet }}&cuisine={{ cuisine }}" class="btn btn-secondary mt-3">Go Back</a>
+    {% endwith %}
+    {% endwith %}
+    {% endwith %}
+
+    <style>
+        .popup {
+          position: fixed;
+          top: 10px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: wheat; /* Bootstrap primary blue */
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          color: Black;
+          padding: 12px 24px;
+          border: 2px black solid;
+          border-radius: 5px;
+          z-index: 9999;
+          font-weight: bold;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+          animation: fadeInOut 3s ease-in-out forwards;
+        }
+      
+        @keyframes fadeInOut {
+          0% { opacity: 0; transform: translate(-50%, -10px); }
+          10% { opacity: 1; transform: translate(-50%, 0); }
+          90% { opacity: 1; transform: translate(-50%, 0); }
+          100% { opacity: 0; transform: translate(-50%, -10px); }
+        }
+      </style>
+
+<script>
+    setTimeout(function () {
+      const popup = document.getElementById("popup-message");
+      if (popup) {
+        popup.style.display = "none";
+      }
+    }, 3000);
+  </script>
+  
+{% endblock %}

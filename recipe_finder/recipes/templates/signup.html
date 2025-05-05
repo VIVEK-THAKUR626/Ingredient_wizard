@@ -1,19 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h2>Sign Up</h2>
-<form method="POST">
-  {% csrf_token %}
-  <input type="text" name="username" placeholder="Username" required><br>
-  <input type="password" name="password" placeholder="Password" required><br>
-  <button type="submit">Sign Up</button>
-</form>
-<a href="{% url 'login' %}">Already have an account? Login</a>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}Home - Recipe Finder{% endblock %}
+
+{% block content %}
+  <!-- Your recipe search and results UI here -->
+  <div class="container mt-5" style="max-width: 400px;">
+  <h2 class="mb-4 text-center">Sign Up</h2>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="mb-3">
+    <input type="text" name="username" class="form-control" placeholder="Username" required>
+    </div>
+    <div class="mb-3">
+    <input type="password" name="password" class="form-control" placeholder="Password" required>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+  </form>
+  <p class="mt-3 text-center">
+  <a href="{% url 'login' %}">Already have an account? Login</a>
+  </p>
+</div>
+{% endblock %}

@@ -59,3 +59,20 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
+.custom-btn {
+    background-color: #007bff;  /* Bootstrap's primary blue */
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.custom-btn:hover {
+    background-color: #0056b3;
+    color: white;
+    text-decoration: none;
+}

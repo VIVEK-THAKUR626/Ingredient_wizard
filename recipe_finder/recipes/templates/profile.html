@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Your Profile</h2>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><a href="{% url 'saved_recipes' %}" class="btn btn-outline-primary mt-2">View Saved Recipes</a></p>
+    <p><a href="{% url 'logout' %}" class="btn btn-danger mt-2">Logout</a></p>
+</div>
+{% endblock %}
