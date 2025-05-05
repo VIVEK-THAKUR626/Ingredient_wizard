@@ -38,7 +38,7 @@ def save_recipe(request):
             title=title,
             image_url=image_url,
         )
-        messages.success(request, "Recipe saved!")
+        messages.success(request, "✅ Recipe saved!")
         return redirect('recipe_detail', recipe_id=recipe_id)
 
 
