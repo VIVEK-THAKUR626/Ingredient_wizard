@@ -68,12 +68,20 @@
         <h2>Recipes:</h2>
         <ul class="list-group">
             {% for recipe in recipes %}
-                <li class="list-group-item">
-                    <a href="{% url 'recipe_detail' recipe.id %}">{{ recipe.title }}</a>
-                    {% if recipe.usedIngredientCount is not None %}
-                        <p>Used Ingredients: {{ recipe.usedIngredientCount }} / {{ recipe.missedIngredientCount }} missing</p>
-                    {% endif %}
-                </li>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                  <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.title }}">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ recipe.title }}</h5>
+                    <p class="card-text">
+                      {% if recipe.usedIngredientCount is not None %}
+                        Used: {{ recipe.usedIngredientCount }} | Missing: {{ recipe.missedIngredientCount }}
+                      {% endif %}
+                    </p>
+                    <a href="{% url 'recipe_detail' recipe.id %}" class="btn btn-primary">View Details</a>
+                  </div>
+                </div>
+              </div>
             {% endfor %}
         </ul>
     {% endif %}
