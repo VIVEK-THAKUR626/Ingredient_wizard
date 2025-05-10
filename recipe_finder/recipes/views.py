@@ -11,6 +11,54 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.http import urlencode
+from .models import RecipeList
+
+@login_required
+def delete_list(request, list_id):
+    recipe_list = get_object_or_404(RecipeList, id=list_id, user=request.user)
+    if request.method == "POST":
+        recipe_list.delete()
+        messages.success(request, "List deleted successfully.")
+    return redirect('manage_lists')  # Change to your actual list page URL name
+
+@login_required
+def create_list(request):
+    if request.method == "POST":
+        name = request.POST.get('name')
+        if name:
+            RecipeList.objects.create(user=request.user, name=name)
+            messages.success(request, "List created successfully!")
+    return redirect('manage_lists')  # or wherever your lists page is
+
+@login_required
+def manage_lists(request):
+    if request.method == 'POST':
+        # Create new list
+        new_list_name = request.POST.get('new_list_name')
+        if new_list_name:
+            RecipeList.objects.create(user=request.user, name=new_list_name)
+            messages.success(request, "✅ List created!")
+
+        # Rename list
+        rename_id = request.POST.get('rename_id')
+        new_name = request.POST.get('new_name')
+        if rename_id and new_name:
+            recipe_list = get_object_or_404(RecipeList, id=rename_id, user=request.user)
+            recipe_list.name = new_name
+            recipe_list.save()
+            messages.success(request, "✏️ List renamed!")
+
+        # Delete list
+        delete_id = request.POST.get('delete_id')
+        if delete_id:
+            recipe_list = get_object_or_404(RecipeList, id=delete_id, user=request.user)
+            recipe_list.delete()
+            messages.success(request, "🗑️ List deleted!")
+
+        return redirect('manage_lists')
+
+    lists = RecipeList.objects.filter(user=request.user).prefetch_related('saved_recipes')
+    return render(request, 'manage_lists.html', {'lists': lists})
 
 def about(request):
     return render(request, 'about.html')
@@ -32,14 +80,20 @@ def save_recipe(request):
         recipe_id = request.POST.get('recipe_id')
         title = request.POST.get('title')
         image_url = request.POST.get('image_url')
+        list_id = request.POST.get('list_id')
+
+        recipe_list = None
+        if list_id:
+            recipe_list = RecipeList.objects.filter(id=list_id, user=request.user).first()
 
         SavedRecipe.objects.create(
             user=request.user,
             recipe_id=recipe_id,
             title=title,
             image_url=image_url,
+            recipe_list=recipe_list  # assuming this field exists in SavedRecipe
         )
-        messages.success(request, "✅ Recipe saved!")
+        messages.success(request, "✅ Recipe saved to your list!")
 
         # Preserve search parameters
         ingredients = request.GET.get('ingredients', '')
@@ -56,12 +110,6 @@ def save_recipe(request):
         url = f"{base_url}?{query_string}"
 
         return redirect(url)
-
-
-@login_required
-def view_saved_recipes(request):
-    saved = SavedRecipe.objects.filter(user=request.user)
-    return render(request, 'saved_recipes.html', {'saved_recipes': saved})
 
 def signup_view(request):
     if request.method == 'POST':
@@ -198,6 +246,10 @@ def recipe_detail(request, recipe_id):
     diet = request.GET.get('diet', '')
     cuisine = request.GET.get('cuisine', '')
 
+    user_lists = []
+    if request.user.is_authenticated:
+        user_lists = RecipeList.objects.filter(user=request.user)
+
     try:
         response = requests.get(url, verify=certifi.where())
         data = response.json()
@@ -206,7 +258,8 @@ def recipe_detail(request, recipe_id):
             'recipe': data,
             'ingredients': ingredients,
             'diet': diet,
-            'cuisine': cuisine
+            'cuisine': cuisine,
+            'user_lists': user_lists
         })
 
     except Exception as e:
