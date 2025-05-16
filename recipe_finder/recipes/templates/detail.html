@@ -32,6 +32,14 @@
       <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
       <input type="hidden" name="title" value="{{ recipe.title }}">
       <input type="hidden" name="image_url" value="{{ recipe.image }}">
+
+      <label for="list_id">Save to list:</label>
+      <select name="list_id" id="list_id" class="form-select">
+        {% for list in user_lists %}
+            <option value="{{ list.id }}">{{ list.name }}</option>
+        {% endfor %}
+      </select>
+      <br>
       <button type="submit" class="btn btn-success">Save Recipe</button>
   </form>
   {% else %}

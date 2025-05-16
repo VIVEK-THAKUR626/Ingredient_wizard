@@ -30,6 +30,9 @@
         <ul class="navbar-nav ms-auto">
           {% if user.is_authenticated %}
             <li class="nav-item">
+              <a class="nav-link" href="{% url 'manage_lists' %}">My Lists</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" href="{% url 'profile' %}">Profile</a>
             </li>
             <li class="nav-item">

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  {% if messages %}
+    <div id="popup-message" class="popup">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+  {% endif %}
+
+  <h2>Your Recipe Lists</h2>
+
+  <form method="POST" action="{% url 'create_list' %}">
+    {% csrf_token %}
+    <input type="text" name="name" placeholder="New list name" required>
+    <button type="submit" class="btn btn-primary">Create List</button>
+  </form>
+
+  <div class="mt-4">
+    {% for list in lists %}
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">{{ list.name }}</h5>
+          <form method="POST" action="{% url 'delete_list' list.id %}" onsubmit="return confirm('Are you sure you want to delete this list?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+          </form>
+        </div>
+        <div class="card-body">
+          {% if list.saved_recipes.all %}
+            <div class="row">
+              {% for recipe in list.saved_recipes.all %}
+                <div class="col-md-4 mb-3">
+                  <div class="card h-100">
+                    <img src="{{ recipe.image_url }}" class="card-img-top" alt="{{ recipe.title }}">
+                    <div class="card-body">
+                      <h5 class="card-title">{{ recipe.title }}</h5>
+                      <a href="{% url 'recipe_detail' recipe.recipe_id %}" class="btn btn-primary">View Details</a>
+                      <!-- 🔴 Remove from list button -->
+                      <form method="POST" action="{% url 'remove_saved_recipe' recipe.id %}" class="mt-2">
+                        {% csrf_token %}
+                      <button type="submit" class="btn btn-danger btn-sm">Unsave</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p>No recipes in this list.</p>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+<style>
+        .popup {
+          position: fixed;
+          top: 10px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: wheat; /* Bootstrap primary blue */
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          color: Black;
+          padding: 12px 24px;
+          border: 2px black solid;
+          border-radius: 5px;
+          z-index: 9999;
+          font-weight: bold;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+          animation: fadeInOut 3s ease-in-out forwards;
+        }
+      
+        @keyframes fadeInOut {
+          0% { opacity: 0; transform: translate(-50%, -10px); }
+          10% { opacity: 1; transform: translate(-50%, 0); }
+          90% { opacity: 1; transform: translate(-50%, 0); }
+          100% { opacity: 0; transform: translate(-50%, -10px); }
+        }
+</style>
+
+<script>
+    // Auto-hide the popup after 4 seconds
+    setTimeout(() => {
+        const popup = document.getElementById('popup-message');
+        if (popup) popup.style.display = 'none';
+    }, 4000);
+</script>
+
+{% endblock %}
