@@ -14,6 +14,14 @@ from django.utils.http import urlencode
 from .models import RecipeList
 
 @login_required
+def remove_saved_recipe(request, recipe_id):
+    recipe = get_object_or_404(SavedRecipe, id=recipe_id, user=request.user)
+
+    recipe.delete()
+    messages.success(request, "✅ Recipe removed from the list.")
+    return redirect('manage_lists')
+
+@login_required
 def delete_list(request, list_id):
     recipe_list = get_object_or_404(RecipeList, id=list_id, user=request.user)
     if request.method == "POST":
@@ -66,13 +74,6 @@ def about(request):
 @login_required
 def profile(request):
     return render(request, 'profile.html')
-
-@login_required
-def unsave_recipe(request, pk):
-    saved = get_object_or_404(SavedRecipe, pk=pk, user=request.user)
-    saved.delete()
-    messages.success(request, "Recipe unsaved.")
-    return redirect('saved_recipes')  # Adjust if your view name is different
 
 @login_required
 def save_recipe(request):

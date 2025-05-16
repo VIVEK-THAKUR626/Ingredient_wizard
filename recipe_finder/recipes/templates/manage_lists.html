@@ -1,5 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
+
+  {% if messages %}
+    <div id="popup-message" class="popup">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+  {% endif %}
+
   <h2>Your Recipe Lists</h2>
 
   <form method="POST" action="{% url 'create_list' %}">
@@ -28,6 +37,11 @@
                     <div class="card-body">
                       <h5 class="card-title">{{ recipe.title }}</h5>
                       <a href="{% url 'recipe_detail' recipe.recipe_id %}" class="btn btn-primary">View Details</a>
+                      <!-- 🔴 Remove from list button -->
+                      <form method="POST" action="{% url 'remove_saved_recipe' recipe.id %}" class="mt-2">
+                        {% csrf_token %}
+                      <button type="submit" class="btn btn-danger btn-sm">Unsave</button>
+                      </form>
                     </div>
                   </div>
                 </div>
@@ -40,4 +54,38 @@
       </div>
     {% endfor %}
   </div>
+<style>
+        .popup {
+          position: fixed;
+          top: 10px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: wheat; /* Bootstrap primary blue */
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          color: Black;
+          padding: 12px 24px;
+          border: 2px black solid;
+          border-radius: 5px;
+          z-index: 9999;
+          font-weight: bold;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+          animation: fadeInOut 3s ease-in-out forwards;
+        }
+      
+        @keyframes fadeInOut {
+          0% { opacity: 0; transform: translate(-50%, -10px); }
+          10% { opacity: 1; transform: translate(-50%, 0); }
+          90% { opacity: 1; transform: translate(-50%, 0); }
+          100% { opacity: 0; transform: translate(-50%, -10px); }
+        }
+</style>
+
+<script>
+    // Auto-hide the popup after 4 seconds
+    setTimeout(() => {
+        const popup = document.getElementById('popup-message');
+        if (popup) popup.style.display = 'none';
+    }, 4000);
+</script>
+
 {% endblock %}
